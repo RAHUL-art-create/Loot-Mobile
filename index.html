@@ -1,0 +1,1710 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Loot App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <style>
+        :root {
+            --primary-color: #dfbdbb;
+            --secondary-color: #010101;
+            --text-color: #ffffff;
+        }
+
+        body {
+            color: var(--text-color);
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .app-container {
+            width: 355px;
+            height: 712px; 
+            margin: 0 auto;
+            background-color: var(--secondary-color);
+            overflow-y: auto;
+            border-radius: 30px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .app-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            flex-grow: 1;
+            text-align: left;
+            margin-left: 15px;
+            animation: pulseAnimation 2s infinite;
+            cursor: pointer;
+        }
+
+        @keyframes pulseAnimation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+        }
+
+        .rewards-icon, .notification-icon, .cart-icon, .login-icon {
+            margin-left: 15px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .main-content {
+            padding: 15px;
+            padding-bottom: 70px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            background-color: var(--secondary-color);
+            border-top: 1px solid #e0e0e0;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            width: 355px;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            text-align: center;
+            cursor: pointer;
+            flex: 1;
+            padding: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item i {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+
+        .nav-item p {
+            margin: 0;
+            font-size: 0.7em;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: rgba(223, 189, 187, 0.1);
+            border-radius: 10px;
+        }
+
+        .nav-item:hover i, .nav-item:hover p,
+        .nav-item.active i, .nav-item.active p {
+            color: var(--primary-color);
+        }
+
+        .offer-card, .product-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-color);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .offer-card:hover, .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .offer-title, .product-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .offer-description, .product-description {
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .price-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .original-price {
+            text-decoration: line-through;
+            color: #ffffff;
+            opacity: 0.7;
+            margin-right: 10px;
+        }
+
+        .discount-tag {
+            background-color: #ff6b6b;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        .offer-price, .product-price {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .marketplace-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .account-info {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .account-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        .account-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .account-email {
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .account-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        #seller-form input, #seller-form textarea {
+            width: 90%;
+            max-width: 300px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        #seller-form input:focus {
+            box-shadow: 0 0 5px var(--primary-color);
+            outline: none;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .offer-card, .product-card {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .reel-container {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 120px);
+            overflow: hidden;
+        }
+
+        .reel-info {
+            position: absolute;
+            bottom: 60px;
+            left: 10px;
+            color: var(--text-color);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .reel-actions {
+            position: absolute;
+            right: 10px;
+            bottom: 60px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .reel-actions button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 24px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .chat-container {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-window {
+            display: none;
+            position: fixed;
+            bottom: -400px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 355px;
+            height: 400px;
+            background-color: var(--secondary-color);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.2);
+            transition: bottom 0.3s ease-in-out;
+            z-index: 1000;
+        }
+
+        .chat-window.active {
+            bottom: 0;
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+        }
+
+        #close-chat {
+            background: none;
+            border: none;
+            color: var(--secondary-color);
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .chat-messages {
+            height: calc(100% - 110px);
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid var(--primary-color);
+        }
+
+        #chat-input-field {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+        }
+
+        #chat-send-button {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-left: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .settings-section {
+            background-color: var(--secondary-color);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .settings-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            display: inline-block;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 24px;
+            transition: background-color 0.4s;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.4s;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        #profile-info {
+            background-color: var(--secondary-color);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .profile-picture {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        .profile-picture-upload {
+            display: none;
+        }
+
+        .profile-picture-label {
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+
+        .button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #seller-form button[type="submit"] {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #seller-form button[type="submit"]:hover {
+            background-color: var(--text-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .account-section, .settings-section {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-color);
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) rgba(255, 255, 255, 0.1);
+        }
+
+        .rewards-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .reward-card {
+            background-color: var(--secondary-color);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .reward-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .reward-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .reward-description {
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .scratch-card {
+            width: 100%;
+            height: 100px;
+            background-color: var(--primary-color);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .scratch-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            transition: opacity 0.3s ease;
+        }
+
+        .scratch-prize {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .check-in-btn, .mystery-box-btn {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .check-in-btn:hover, .mystery-box-btn:hover {
+            background-color: var(--text-color);
+        }
+
+        .rewards-summary {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .reward-item {
+            text-align: center;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            padding: 10px;
+            border-radius: 10px;
+            width: 40%;
+        }
+
+        .reward-item i {
+            font-size: 20px;
+        }
+
+        .reward-item span {
+            font-size: 16px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .reward-item p {
+            margin: 0;
+            font-size: 12px;
+        }
+
+        .seller-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .seller-name {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .product-rating {
+            color: var(--text-color);
+            margin-top: 5px;
+        }
+
+        .product-rating i {
+            margin-right: 3px;
+        }
+
+        .login-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 300px;
+            background-color: rgba(200, 200, 200, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            display: none;
+        }
+
+        .login-panel.active {
+            display: block;
+        }
+
+        .login-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .login-content h2 {
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+
+        .login-content input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+        }
+
+        .login-content .button {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        #google-signin {
+            background-color: #4285F4;
+            color: white;
+        }
+
+        .login-content p {
+            color: var(--text-color);
+            margin-top: 10px;
+        }
+
+        .login-content a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .account-section, .settings-section {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .product-card .button {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .chat-with-seller {
+            margin-top: 5px;
+        }
+
+        #home {
+            padding: 15px;
+        }
+
+        .featured-deal {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .quick-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .action-btn {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background-color: var(--text-color);
+            transform: translateY(-2px);
+        }
+
+        .activity-feed {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 30px; /* Increased space between Recent Activity and AI-Powered Products */
+        }
+
+        #activity-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #activity-list li {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .featured-ai-products, .ai-knowledge-hub, .trending-topics {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .ai-product-card, .knowledge-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .knowledge-title, .topic-item {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .topic-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .topic-item {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+
+        .editable-name {
+            cursor: pointer;
+        }
+
+        .seller-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .seller-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: rgba(223, 189, 187, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        .seller-button {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .seller-button:hover {
+            background-color: var(--text-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .analytics-chart {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .analytics-insights {
+            padding: 15px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .back-button {
+            margin-bottom: 15px;
+        }
+
+        #seller-signout {
+            background-color: #ff6b6b;
+            margin-top: 20px;
+        }
+
+        .seller-section {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .reward-card .button {
+            margin-top: 15px; /* Added space between Rewards & Scratch Cards buttons */
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="app-container">
+            <header>
+                <div class="logo">Loot</div>
+                <div class="header-icons">
+                    <div class="rewards-icon" onclick="showRewards()"><i class="fas fa-gift"></i></div>
+                    <div class="notification-icon"><i class="fas fa-bell"></i></div>
+                    <div class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count">0</span>
+                    </div>
+                    <div class="login-icon" id="login-button"><i class="fas fa-user"></i></div>
+                </div>
+            </header>
+            
+            <div class="main-content">
+                <div id="home" class="section active">
+                    <h2>Welcome to Loot, <span id="user-name" class="editable-name">Rahul</span></h2>
+                    <div class="featured-deal">
+                        <h3>Deal of the Day</h3>
+                        <div class="deal-content">
+                            <div class="product-card">
+                                <div class="product-title">Limited Time Offer!</div>
+                                <div class="product-description">Get 50% off on our premium headphones.</div>
+                                <div class="price-container">
+                                    <span class="original-price">₹2000</span>
+                                    <span class="offer-price">₹1000</span>
+                                </div>
+                                <div class="discount-tag">50% OFF</div>
+                                <button class="button" onclick="addToCart({title: 'Premium Headphones', price: 1000})">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="action-btn" onclick="showRewards()">Daily Rewards</button>
+                        <button class="action-btn" onclick="showSection('marketplace')">Shop Now</button>
+                        <button class="action-btn" onclick="showSection('loot')">Loot Deals</button>
+                    </div>
+                    <div class="activity-feed">
+                        <h3>Recent Activity</h3>
+                        <ul id="activity-list">
+                            <li>You earned 50 points from a daily check-in!</li>
+                            <li>New Loot Deal: 30% off on smartphones</li>
+                            <li>Your order #1234 has been shipped</li>
+                            <li>You referred a friend and earned 100 points!</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="featured-ai-products">
+                        <h3>AI-Powered Products</h3>
+                        <div class="ai-product-card">
+                            <div class="product-title">AI Writing Assistant</div>
+                            <div class="product-description">Boost your productivity with our advanced AI writing tool.</div>
+                            <div class="price-container">
+                                <span class="offer-price">₹999/month</span>
+                            </div>
+                            <button class="button" onclick="addToCart({title: 'AI Writing Assistant', price: 999})">Try Now</button>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-knowledge-hub">
+                        <h3>AI Knowledge Hub</h3>
+                        <div class="knowledge-card">
+                            <div class="knowledge-title">Did You Know?</div>
+                            <div class="knowledge-content" id="ai-fact">Natural Language Processing allows AI to understand and respond to human language.</div>
+                            <button class="button" onclick="loadNewAIFact()">Learn More</button>
+                        </div>
+                    </div>
+
+                    <div class="trending-topics">
+                        <h3>Trending in AI</h3>
+                        <div class="topic-list" id="trending-topics-list">
+                            <div class="topic-item">Image Generation AI</div>
+                            <div class="topic-item">Coding AI Assistants</div>
+                            <div class="topic-item">AI in Healthcare</div>
+                            <div class="topic-item">Natural Language Processing</div>
+                            <div class="topic-item">AI in Finance</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="explore" class="section">
+                    <div class="reel-container">
+                        <video width="100%" height="100%" loop autoplay muted>
+                            <source src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/sample-video-Ld7Iy6ckNRXXZXZHXLLXZXXXXXXXXX.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="reel-info">
+                            <h3>Amazing Product</h3>
+                            <p>Check out this incredible deal!</p>
+                            <p class="offer-price">₹999</p>
+                        </div>
+                        <div class="reel-actions">
+                            <button><i class="fas fa-heart"></i></button>
+                            <button><i class="fas fa-comment"></i></button>
+                            <button><i class="fas fa-share"></i></button>
+                            <button><i class="fas fa-shopping-cart" data-item='{"title": "Amazing Product", "price": 999}' onclick="addToCart(this.dataset.item)"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="loot" class="section">
+                    <h2>Loot Deals</h2>
+                    <div class="offer-card" onclick="showProductDetails(this)">
+                        <div class="offer-title">Special Discount</div>
+                        <div class="offer-description">Get 50% off on selected items. Limited time offer!</div>
+                        <div class="price-container">
+                            <span class="original-price">₹998</span>
+                            <span class="offer-price">₹499</span>
+                        </div>
+                        <div class="discount-tag">50% OFF</div>
+                        <div class="seller-info">Seller: SuperDeals</div>
+                    </div>
+                    <div class="offer-card" onclick="showProductDetails(this)">
+                        <div class="offer-title">Flash Sale</div>
+                        <div class="offer-description">Limited time offer on premium products.</div>
+                        <div class="price-container">
+                            <span class="original-price">₹999</span>
+                            <span class="offer-price">₹799</span>
+                        </div>
+                        <div class="discount-tag">20% OFF</div>
+                        <div class="seller-info">Seller: DealsGalore</div>
+                    </div>
+                    <div class="offer-card" onclick="showProductDetails(this)">
+                        <div class="offer-title">Bundle Deal</div>
+                        <div class="offer-description">Buy 2 get 1 free on all accessories!</div>
+                        <div class="price-container">
+                            <span class="original-price">₹1499</span>
+                            <span class="offer-price">₹999</span>
+                        </div>
+                        <div class="discount-tag">33% OFF</div>
+                        <div class="seller-info">Seller: BestOffers</div>
+                    </div>
+                    <div class="offer-card" onclick="showProductDetails(this)">
+                        <div class="offer-title">Clearance Sale</div>
+                        <div class="offer-description">Up to 70% off on last season's collection.</div>
+                        <div class="price-container">
+                            <span class="original-price">₹999</span>
+                            <span class="offer-price">₹299</span>
+                        </div>
+                        <div class="discount-tag">70% OFF</div>
+                        <div class="seller-info">Seller: LastChance</div>
+                    </div>
+                </div>
+
+                <div id="marketplace" class="section">
+                    <h2>ONDC Marketplace</h2>
+                    <div class="marketplace-grid" id="marketplace-grid">
+                        <div class="product-card">
+                            <div class="product-title">Handcrafted Pottery</div>
+                            <div class="product-description">Unique, artisanal pottery made by local craftsmen.</div>
+                            <div class="product-price">₹1,299</div>
+                            <div class="seller-info">
+                                <span class="seller-name">ArtisanCrafts</span>
+                                <span class="product-rating"><i class="fas fa-star"></i> 4.5 (120 ratings)</span>
+                            </div>
+                            <button class="button" data-item='{"title": "Handcrafted Pottery", "price": 1299, "seller": "ArtisanCrafts", "rating": "4.5"}' onclick="addToCart(this.dataset.item)">Add to Cart</button>
+                            <button class="button chat-with-seller" onclick="openChat('ArtisanCrafts')">
+                                <i class="fas fa-comment-dots"></i> Chat with Seller
+                            </button>
+                        </div>
+                        <div class="product-card">
+                            <div class="product-title">Organic Honey</div>
+                            <div class="product-description">Pure, raw honey sourced from local farms.</div>
+                            <div class="product-price">₹399</div>
+                            <div class="seller-info">
+                                <span class="seller-name">NatureFarms</span>
+                                <span class="product-rating"><i class="fas fa-star"></i> 4.8 (95 ratings)</span>
+                            </div>
+                            <button class="button" data-item='{"title": "Organic Honey", "price": 399, "seller": "NatureFarms", "rating": "4.8"}' onclick="addToCart(this.dataset.item)">Add to Cart</button>
+                            <button class="button chat-with-seller" onclick="openChat('NatureFarms')">
+                                <i class="fas fa-comment-dots"></i> Chat with Seller
+                            </button>
+                        </div>
+                        <div class="product-card">
+                            <div class="product-title">Handwoven Scarf</div>
+                            <div class="product-description">Beautifully crafted scarf made from organic materials.</div>
+                            <div class="product-price">₹899</div>
+                            <div class="seller-info">
+                                <span class="seller-name">EcoTextiles</span>
+                                <span class="product-rating"><i class="fas fa-star"></i> 4.3 (78 ratings)</span>
+                            </div>
+                            <button class="button" data-item='{"title": "Handwoven Scarf", "price": 899, "seller": "EcoTextiles", "rating": "4.3"}' onclick="addToCart(this.dataset.item)">Add to Cart</button>
+                            <button class="button chat-with-seller" onclick="openChat('EcoTextiles')">
+                                <i class="fas fa-comment-dots"></i> Chat with Seller
+                            </button>
+                        </div>
+                        <div class="product-card">
+                            <div class="product-title">Artisanal Cheese</div>
+                            <div class="product-description">Creamy, hand-crafted cheese from local dairies.</div>
+                            <div class="product-price">₹599</div>
+                            <div class="seller-info">
+                                <span class="seller-name">LocalDairy</span>
+                                <span class="product-rating"><i class="fas fa-star"></i> 4.7 (150 ratings)</span>
+                            </div>
+                            <button class="button" data-item='{"title": "Artisanal Cheese", "price": 599, "seller": "LocalDairy", "rating": "4.7"}' onclick="addToCart(this.dataset.item)">Add to Cart</button>
+                            <button class="button chat-with-seller" onclick="openChat('LocalDairy')">
+                                <i class="fas fa-comment-dots"></i> Chat with Seller
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="seller" class="section">
+                    <h2>Seller Account</h2>
+                    <div id="seller-login">
+                        <form id="seller-form">
+                            <input type="text" placeholder="Business Name" required>
+                            <input type="email" placeholder="Email" required>
+                            <input type="password" placeholder="Password" required>
+                            <input type="tel" placeholder="Phone Number" required>
+                            <input type="text" placeholder="Business Address" required>
+                            <input type="text" placeholder="GST Number" required>
+                            <button type="submit">Create Seller Account</button>
+                        </form>
+                    </div>
+                    <div id="seller-dashboard" class="seller-section" style="display: none;">
+                        <button id="back-to-dashboard" class="seller-button"><i class="fas fa-arrow-left"></i> Back</button>
+                        <h3>Seller Dashboard</h3>
+                        <div class="seller-stats">
+                            <div class="stat-item">
+                                <div class="stat-value" id="product-count">0</div>
+                                <div class="stat-label">Products</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="total-sales">₹0</div>
+                                <div class="stat-label">Total Sales</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="avg-rating">0.0</div>
+                                <div class="stat-label">Avg. Rating</div>
+                            </div>
+                        </div>
+                        <button id="add-product" class="seller-button">Add New Product</button>
+                        <button id="view-offers" class="seller-button">View Offers</button>
+                        <button id="view-analytics" class="seller-button">View Analytics</button>
+                        <button id="seller-signout" class="seller-button">Sign Out</button>
+                    </div>
+
+                    <div id="seller-analytics" class="section seller-section" style="display: none;">
+                        <button class="back-button seller-button"><i class="fas fa-arrow-left"></i> Back</button>
+                        <h3>Seller Analytics</h3>
+                        <div class="analytics-chart">
+                            <!-- Placeholder for a chart -->
+                            <svg width="100%" height="200">
+                                <rect width="100%" height="100%" fill="#f0f0f0" />
+                                <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle">Sales Chart Placeholder</text>
+                            </svg>
+                        </div>
+                        <div class="analytics-insights">
+                            <h4>Insights</h4>
+                            <ul>
+                                <li>Your best-selling product this month: Product A</li>
+                                <li>Customer satisfaction rate: 92%</li>
+                                <li>Suggested improvement: Add more product photos</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div id="product-upload" class="section seller-section" style="display: none;">
+                        <button class="back-button seller-button"><i class="fas fa-arrow-left"></i> Back</button>
+                        <h3>Upload New Product</h3>
+                        <form id="product-upload-form">
+                            <input type="text" placeholder="Product Name" required>
+                            <textarea placeholder="Product Description" required></textarea>
+                            <input type="number" placeholder="Price" required>
+                            <input type="file" accept="video/*" required>
+                            <input type="url" placeholder="Product Link" required>
+                            <button type="submit">Upload Product</button>
+                        </form>
+                    </div>
+
+                    <div id="seller-offers" class="section seller-section" style="display: none;">
+                        <button class="back-button seller-button"><i class="fas fa-arrow-left"></i> Back</button>
+                        <h3>Seller Offers</h3>
+                        <div id="offer-list"></div>
+                        <button id="create-offer" class="seller-button">Create New Offer</button>
+                    </div>
+                </div>
+
+                <div id="account" class="section">
+                    <div class="account-section">
+                        <div class="account-info">
+                            <img src="/placeholder.svg?height=80&width=80" alt="User Avatar" class="account-avatar">
+                            <div class="account-name" id="account-name">Rahul</div>
+                            <div class="account-email" id="account-email">swag.da@example.com</div>
+                            <button class="button">Edit Profile</button>
+                            <button id="create-seller-account" class="button">Create Seller Account</button>
+                            <div class="account-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">10</div>
+                                    <div class="stat-label">Orders</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">5</div>
+                                    <div class="stat-label">Wishlist</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="points-balance">1000</div>
+                                    <div class="stat-label">Points</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="account-section">
+                        <h3>Profile Information</h3>
+                        <p><strong>Username:</strong> <span id="account-username">Rahul</span> <button id="edit-username" class="button">Edit</button></p>
+                        <p><strong>Profile Type:</strong> <span id="profile-type">User</span></p>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Loot Settings</h3>
+                        <div class="settings-option">
+                            <span>Auto-claim Daily Rewards</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="auto-claim-toggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-option">
+                            <span>Reward Notifications</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="reward-notifications-toggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-option">
+                            <span>Wishlist Notifications</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="wishlist-notifications-toggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-option">
+                            <span>Price Alerts</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="price-alerts-toggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="account-section">
+                        <h3>Rewards Summary</h3>
+                        <div class="rewards-summary">
+                            <div class="reward-item">
+                                <i class="fas fa-coins"></i>
+                                <span id="points-balance">1000</span>
+                                <p>Points</p>
+                            </div>
+                            <div class="reward-item">
+                                <i class="fas fa-percentage"></i>
+                                <span id="cashback-balance">₹0</span>
+                                <p>Cashback</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="account-section">
+                        <h3>Referral Program</h3>
+                        <p>Invite friends and earn rewards!</p>
+                        <div id="referral-code">Your Referral Code: LOOT123</div>
+                        <button id="share-referral" class="button">Share Referral Code</button>
+                    </div>
+                </div>
+
+                <div id="rewards" class="section">
+                    <h2>Rewards & Scratch Cards</h2>
+                    <div class="rewards-container">
+                        <div class="reward-card">
+                            <div class="reward-title">Daily Check-in</div>
+                            <div class="reward-description">Check in daily to earn points and unlock rewards!</div>
+                            <button class="button check-in-btn">Check In</button>
+                        </div>
+                        <div class="reward-card">
+                            <div class="reward-title">Scratch & Win</div>
+                            <div class="reward-description">Scratch the card to reveal your prize!</div>
+                            <div class="scratch-card">
+                                <div class="scratch-overlay"></div>
+                                <div class="scratch-prize">₹50 Off</div>
+                            </div>
+                        </div>
+                        <div class="reward-card">
+                            <div class="reward-title">Mystery Box</div>
+                            <div class="reward-description">Open the box for a surprise reward!</div>
+                            <button class="button mystery-box-btn">Open Box</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="cart" class="section">
+                    <h2>Your Cart</h2>
+                    <div id="cart-items"></div>
+                    <div id="cart-total"></div>
+                </div>
+            </div>
+            
+            <nav class="bottom-nav">
+                <div class="nav-item" data-target="home">
+                    <i class="fas fa-home"></i>
+                    <p>Home</p>
+                </div>
+                <div class="nav-item" data-target="explore">
+                    <i class="fas fa-compass"></i>
+                    <p>Explore</p>
+                </div>
+                <div class="nav-item" data-target="loot">
+                    <i class="fas fa-gift"></i>
+                    <p>Loot</p>
+                </div>
+                <div class="nav-item" data-target="marketplace">
+                    <i class="fas fa-store"></i>
+                    <p>Market</p>
+                </div>
+                <div class="nav-item" data-target="seller">
+                    <i class="fas fa-user-tie"></i>
+                    <p>Seller</p>
+                </div>
+                <div class="nav-item" data-target="account">
+                    <i class="fas fa-user"></i>
+                    <p>Account</p>
+                </div>
+            </nav>
+            
+            <div class="chat-container" id="chat-button">
+                <i class="fas fa-comment"></i>
+            </div>
+
+            <div class="chat-window" id="chat-window">
+                <div class="chat-header">
+                    <span>Chat with Seller</span>
+                    <button id="close-chat"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="chat-messages" id="chat-messages"></div>
+                <div class="chat-input">
+                    <input type="text" placeholder="Type a message..." id="chat-input-field">
+                    <button id="chat-send-button"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+            <div class="login-panel" id="login-panel">
+                <div class="login-content">
+                    <h2>Login / Sign Up</h2>
+                    <button id="google-signin" class="button">Sign in with Google</button>
+                    <form id="login-form">
+                        <input type="email" placeholder="Email" required>
+                        <input type="password" placeholder="Password" required>
+                        <button type="submit" class="button">Login</button>
+                    </form>
+                    <p>Don't have an account? <a href="#" id="show-signup">Sign up</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyClf6W3B2nesvjfZtRSMcjbt6NRp6uy-Po",
+                authDomain: "lootbase-4d01f.firebaseapp.com",
+                databaseURL: "https://lootbase-4d01f-default-rtdb.firebaseio.com",
+                projectId: "lootbase-4d01f",
+                storageBucket: "lootbase-4d01f.appspot.com",
+                messagingSenderId: "350264696657",
+                appId: "1:350264696657:web:9af597da2f5fd2970d7d70",
+                measurementId: "G-YQK38EMPJK"
+            };
+
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+
+            const navItems = document.querySelectorAll('.nav-item');
+            const sections = document.querySelectorAll('.section');
+
+            function showSection(sectionId) {
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(sectionId).classList.add('active');
+                navItems.forEach(navItem => navItem.classList.remove('active'));
+                const navItem = document.querySelector(`.nav-item[data-target="${sectionId}"]`);
+                if (navItem) {
+                    navItem.classList.add('active');
+                }
+            }
+
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const target = item.getAttribute('data-target');
+                    showSection(target);
+                });
+            });
+
+            // Show Home section by default
+            showSection('home');
+
+            // Add click event to Loot logo
+            document.querySelector('.logo').addEventListener('click', () => {
+                showSection('home');
+            });
+
+            const cartCount = document.querySelector('.cart-count');
+            let cartItems = [];
+
+            function addToCart(item) {
+                const parsedItem = typeof item === 'string' ? JSON.parse(item) : item;
+                const existingItem = cartItems.find(cartItem => cartItem.title === parsedItem.title);
+
+                if (existingItem) {
+                    existingItem.quantity = (existingItem.quantity || 1) + 1;
+                } else {
+                    parsedItem.quantity = 1;
+                    cartItems.push(parsedItem);
+                }
+
+                updateCartCount();
+                saveCartToLocalStorage();
+                
+                alert(`Added to cart: ${parsedItem.title}\nSeller: ${parsedItem.seller}\nRating: ${parsedItem.rating}`);
+                renderCart();
+            }
+
+            function updateCartCount() {
+                cartCount.textContent = cartItems.length;
+            }
+
+            function renderCart() {
+                const cartItemsContainer = document.getElementById('cart-items');
+                cartItemsContainer.innerHTML = '';
+                let total = 0;
+
+                cartItems.forEach((item, index) => {
+                    const itemElement = document.createElement('div');
+                    itemElement.classList.add('cart-item');
+                    itemElement.innerHTML = `
+                        <span>${item.title}</span>
+                        <span>₹${item.price}</span>
+                        <div class="quantity-controls">
+                            <button onclick="updateQuantity(${index}, -1)">-</button>
+                            <span>${item.quantity || 1}</span>
+                            <button onclick="updateQuantity(${index}, 1)">+</button>
+                        </div>
+                        <button onclick="removeFromCart(${index})">Remove</button>
+                    `;
+                    cartItemsContainer.appendChild(itemElement);
+                    total += item.price * (item.quantity || 1);
+                });
+
+                document.getElementById('cart-total').textContent = `Total: ₹${total}`;
+            }
+
+            function updateQuantity(index, change) {
+                cartItems[index].quantity = (cartItems[index].quantity || 1) + change;
+                if (cartItems[index].quantity < 1) {
+                    cartItems.splice(index, 1);
+                }
+                saveCartToLocalStorage();
+                renderCart();
+                updateCartCount();
+            }
+
+            function removeFromCart(index) {
+                cartItems.splice(index, 1);
+                saveCartToLocalStorage();
+                renderCart();
+                updateCartCount();
+            }
+
+            function saveCartToLocalStorage() {
+                localStorage.setItem('cart', JSON.stringify(cartItems));
+            }
+
+            function loadCartFromLocalStorage() {
+                const savedCart = localStorage.getItem('cart');
+                if (savedCart) {
+                    cartItems = JSON.parse(savedCart);
+                    updateCartCount();
+                    renderCart();
+                }
+            }
+
+            loadCartFromLocalStorage();
+
+            const chatButton = document.getElementById('chat-button');
+            const chatWindow = document.getElementById('chat-window');
+            const chatMessages = document.getElementById('chat-messages');
+            const chatInput = document.getElementById('chat-input-field');
+            const chatSendButton = document.getElementById('chat-send-button');
+            const closeChat = document.getElementById('close-chat');
+
+            chatButton.addEventListener('click', () => {
+                chatWindow.classList.add('active');
+            });
+
+            closeChat.addEventListener('click', () => {
+                chatWindow.classList.remove('active');
+            });
+
+            chatSendButton.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            function sendMessage() {
+                const message = chatInput.value.trim();
+                if (message) {
+                    addMessage('You', message);
+                    chatInput.value = '';
+                    setTimeout(() => {
+                        addMessage('Seller', 'Thank you for your message. How can I assist you?');
+                    }, 1000);
+                }
+            }
+
+            function addMessage(sender, text) {
+                const messageElement = document.createElement('div');
+                messageElement.innerHTML = `<strong>${sender}:</strong> ${text}`;
+                chatMessages.appendChild(messageElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            const scratchCard = document.querySelector('.scratch-card');
+            const scratchOverlay = document.querySelector('.scratch-overlay');
+            let isScratching = false;
+            let scratchCanvas;
+
+            function initScratchCard() {
+                scratchCanvas = document.createElement('canvas');
+                scratchCanvas.width = scratchCard.offsetWidth;
+                scratchCanvas.height = scratchCard.offsetHeight;
+                scratchCanvas.style.position = 'absolute';
+                scratchCanvas.style.top = '0';
+                scratchCanvas.style.left = '0';
+                scratchOverlay.appendChild(scratchCanvas);
+                
+                const ctx = scratchCanvas.getContext('2d');
+                ctx.fillStyle = '#ccc';
+                ctx.fillRect(0, 0, scratchCanvas.width, scratchCanvas.height);
+            }
+
+            function scratch(e) {
+                if (!isScratching) return;
+                const rect = scratchCard.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                
+                const ctx = scratchCanvas.getContext('2d');
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.arc(x, y, 20, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+
+            scratchCard.addEventListener('mousedown', startScratching);
+            scratchCard.addEventListener('mousemove', scratch);
+            scratchCard.addEventListener('mouseup', stopScratching);
+            scratchCard.addEventListener('mouseleave', stopScratching);
+            scratchCard.addEventListener('touchstart', startScratching);
+            scratchCard.addEventListener('touchmove', scratch);
+            scratchCard.addEventListener('touchend', stopScratching);
+
+            function startScratching(e) {
+                isScratching = true;
+                scratch(e);
+            }
+
+            function stopScratching() {
+                isScratching = false;
+            }
+
+            initScratchCard();
+
+            const checkInBtn = document.querySelector('.check-in-btn');
+            const mysteryBoxBtn = document.querySelector('.mystery-box-btn');
+
+            checkInBtn.addEventListener('click', function() {
+                alert('You\'ve checked in! +50 points added to your account.');
+                updatePoints(50);
+            });
+
+            mysteryBoxBtn.addEventListener('click', function() {
+                const rewards = ['100 points', '₹50 Off', 'Free Shipping', '10% Cashback'];
+                const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
+                alert(`Congratulations! You've won: ${randomReward}`);
+                if (randomReward === '100 points') {
+                    updatePoints(100);
+                }
+            });
+
+            function updatePoints(amount) {
+                const pointsBalance = document.getElementById('points-balance');
+                let currentPoints = parseInt(pointsBalance.textContent);
+                currentPoints += amount;
+                pointsBalance.textContent = currentPoints;
+            }
+
+            document.querySelectorAll('.reel-actions button:last-child').forEach(button => {
+                button.addEventListener('click', () => {
+                    const item = {
+                        title: "Sample Item",
+                        price: 999
+                    };
+                    addToCart(item);
+                });
+            });
+
+            document.getElementById('seller-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                document.getElementById('seller-login').style.display = 'none';
+                document.getElementById('seller-dashboard').style.display = 'block';
+            });
+
+            document.getElementById('add-product').addEventListener('click', () => {
+                document.getElementById('seller-dashboard').style.display = 'none';
+                document.getElementById('product-upload').style.display = 'block';
+            });
+
+            document.getElementById('view-offers').addEventListener('click', () => {
+                document.getElementById('seller-dashboard').style.display = 'none';
+                document.getElementById('seller-offers').style.display = 'block';
+            });
+
+            document.getElementById('view-analytics').addEventListener('click', () => {
+                document.getElementById('seller-dashboard').style.display = 'none';
+                document.getElementById('seller-analytics').style.display = 'block';
+            });
+
+            document.querySelectorAll('.back-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.seller-section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    document.getElementById('seller-dashboard').style.display = 'block';
+                });
+            });
+
+            document.getElementById('seller-signout').addEventListener('click', () => {
+                document.getElementById('seller-dashboard').style.display = 'none';
+                document.getElementById('seller-login').style.display = 'block';
+                alert('You have been signed out of your seller account.');
+            });
+
+            document.getElementById('create-seller-account').addEventListener('click', () => {
+                showSection('seller');
+                document.getElementById('seller-login').style.display = 'none';
+                document.getElementById('seller-dashboard').style.display = 'block';
+                document.getElementById('profile-type').textContent = 'Seller';
+            });
+
+            const loginButton = document.getElementById('login-button');
+            const loginPanel = document.getElementById('login-panel');
+
+            loginButton.addEventListener('click', () => {
+                loginPanel.classList.toggle('active');
+            });
+        });
+
+        function openChat(seller) {
+            const chatWindow = document.getElementById('chat-window');
+            chatWindow.classList.add('active');
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = `<div><strong>${seller}:</strong> How can I help you?</div>`;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showRewards() {
+            const rewardsSection = document.getElementById('rewards');
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.remove('active'));
+            rewardsSection.classList.add('active');
+        }
+    </script>
+</body>
+</html>
