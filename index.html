@@ -1,5 +1,4 @@
-<html lang="en">
-<head>
+<html><head><base href="">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Loot App</title>
@@ -783,7 +782,7 @@
             border-radius: 15px;
             padding: 15px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            margin-bottom: 30px; /* Increased space between Recent Activity and AI-Powered Products */
+            margin-bottom: 30px; 
         }
 
         #activity-list {
@@ -926,7 +925,115 @@
         }
 
         .reward-card .button {
-            margin-top: 15px; /* Added space between Rewards & Scratch Cards buttons */
+            margin-top: 15px; 
+        }
+
+        .category-grid {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .category-item {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .category-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .category-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .category-name {
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .activity-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            z-index: 1001;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .activity-modal.active {
+            display: block;
+        }
+
+        .activity-modal .modal-content {
+            color: var(--text-color);
+        }
+
+        .activity-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        h3 {
+            margin: 20px 0 10px 0;
+            color: var(--text-color);
+            font-size: 1.4em;
+        }
+
+        .filter-section {
+            width: auto;
+            padding: 8px;
+            margin-bottom: 10px;
+            background: transparent;
+            border: none;
+        }
+
+        .search-container {
+            position: relative;
+            margin: 10px 0;
+            width: 90%;
+            max-width: 250px;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 6px 30px 6px 10px;
+            border-radius: 15px;
+            border: 1px solid var(--primary-color);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            font-size: 13px;
+        }
+
+        .filter-dropdown {
+            width: 120px;
+            padding: 6px;
+            margin: 5px 0;
+            border-radius: 8px;
+            background: var(--secondary-color);
+            color: var(--text-color);
+            border: 1px solid var(--primary-color);
+            font-size: 13px;
         }
     </style>
 </head>
@@ -966,36 +1073,42 @@
                     </div>
                     <div class="quick-actions">
                         <button class="action-btn" onclick="showRewards()">Daily Rewards</button>
-                        <button class="action-btn" onclick="showSection('marketplace')">Shop Now</button>
+                        <button class="action-btn" onclick="toggleActivityModal()">Recent Activity</button>
                         <button class="action-btn" onclick="showSection('loot')">Loot Deals</button>
                     </div>
-                    <div class="activity-feed">
-                        <h3>Recent Activity</h3>
-                        <ul id="activity-list">
-                            <li>You earned 50 points from a daily check-in!</li>
-                            <li>New Loot Deal: 30% off on smartphones</li>
-                            <li>Your order #1234 has been shipped</li>
-                            <li>You referred a friend and earned 100 points!</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="featured-ai-products">
-                        <h3>AI-Powered Products</h3>
-                        <div class="ai-product-card">
-                            <div class="product-title">AI Writing Assistant</div>
-                            <div class="product-description">Boost your productivity with our advanced AI writing tool.</div>
-                            <div class="price-container">
-                                <span class="offer-price">₹999/month</span>
-                            </div>
-                            <button class="button" onclick="addToCart({title: 'AI Writing Assistant', price: 999})">Try Now</button>
+                    <h3>Explore Loot</h3>
+                    <div class="category-grid">
+                        <div class="category-item" onclick="showCategoryProducts('electronics')">
+                            <div class="category-icon"><i class="fas fa-mobile-alt"></i></div>
+                            <div class="category-name">Electronics</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryProducts('fashion')">
+                            <div class="category-icon"><i class="fas fa-tshirt"></i></div>
+                            <div class="category-name">Fashion</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryProducts('home')">
+                            <div class="category-icon"><i class="fas fa-home"></i></div>
+                            <div class="category-name">Home</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryProducts('ai-tools')">
+                            <div class="category-icon"><i class="fas fa-robot"></i></div>
+                            <div class="category-name">AI Tools</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryProducts('books')">
+                            <div class="category-icon"><i class="fas fa-book"></i></div>
+                            <div class="category-name">Books</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryProducts('more')">
+                            <div class="category-icon"><i class="fas fa-ellipsis-h"></i></div>
+                            <div class="category-name">More</div>
                         </div>
                     </div>
-                    
+
                     <div class="ai-knowledge-hub">
                         <h3>AI Knowledge Hub</h3>
                         <div class="knowledge-card">
                             <div class="knowledge-title">Did You Know?</div>
-                            <div class="knowledge-content" id="ai-fact">Natural Language Processing allows AI to understand and respond to human language.</div>
+                            <div class="knowledge-content" id="ai-fact">Loading interesting AI fact...</div>
                             <button class="button" onclick="loadNewAIFact()">Learn More</button>
                         </div>
                     </div>
@@ -1027,7 +1140,7 @@
                             <button><i class="fas fa-heart"></i></button>
                             <button><i class="fas fa-comment"></i></button>
                             <button><i class="fas fa-share"></i></button>
-                            <button><i class="fas fa-shopping-cart" data-item='{"title": "Amazing Product", "price": 999}' onclick="addToCart(this.dataset.item)"></i></button>
+                            <button class="fas fa-shopping-cart" data-item='{"title": "Amazing Product", "price": 999}' onclick="addToCart(this.dataset.item)"></button>
                         </div>
                     </div>
                 </div>
@@ -1077,61 +1190,17 @@
                 </div>
 
                 <div id="marketplace" class="section">
-                    <h2>ONDC Marketplace</h2>
-                    <div class="marketplace-grid" id="marketplace-grid">
-                        <div class="product-card">
-                            <div class="product-title">Handcrafted Pottery</div>
-                            <div class="product-description">Unique, artisanal pottery made by local craftsmen.</div>
-                            <div class="product-price">₹1,299</div>
-                            <div class="seller-info">
-                                <span class="seller-name">ArtisanCrafts</span>
-                                <span class="product-rating"><i class="fas fa-star"></i> 4.5 (120 ratings)</span>
-                            </div>
-                            <button class="button" data-item='{"title": "Handcrafted Pottery", "price": 1299, "seller": "ArtisanCrafts", "rating": "4.5"}' onclick="addToCart(this.dataset.item)">Add to Cart</button>
-                            <button class="button chat-with-seller" onclick="openChat('ArtisanCrafts')">
-                                <i class="fas fa-comment-dots"></i> Chat with Seller
-                            </button>
-                        </div>
-                        <div class="product-card">
-                            <div class="product-title">Organic Honey</div>
-                            <div class="product-description">Pure, raw honey sourced from local farms.</div>
-                            <div class="product-price">₹399</div>
-                            <div class="seller-info">
-                                <span class="seller-name">NatureFarms</span>
-                                <span class="product-rating"><i class="fas fa-star"></i> 4.8 (95 ratings)</span>
-                            </div>
-                            <button class="button" data-item='{"title": "Organic Honey", "price": 399, "seller": "NatureFarms", "rating": "4.8"}' onclick="addToCart(this.dataset.item)">Add to Cart</button>
-                            <button class="button chat-with-seller" onclick="openChat('NatureFarms')">
-                                <i class="fas fa-comment-dots"></i> Chat with Seller
-                            </button>
-                        </div>
-                        <div class="product-card">
-                            <div class="product-title">Handwoven Scarf</div>
-                            <div class="product-description">Beautifully crafted scarf made from organic materials.</div>
-                            <div class="product-price">₹899</div>
-                            <div class="seller-info">
-                                <span class="seller-name">EcoTextiles</span>
-                                <span class="product-rating"><i class="fas fa-star"></i> 4.3 (78 ratings)</span>
-                            </div>
-                            <button class="button" data-item='{"title": "Handwoven Scarf", "price": 899, "seller": "EcoTextiles", "rating": "4.3"}' onclick="addToCart(this.dataset.item)">Add to Cart</button>
-                            <button class="button chat-with-seller" onclick="openChat('EcoTextiles')">
-                                <i class="fas fa-comment-dots"></i> Chat with Seller
-                            </button>
-                        </div>
-                        <div class="product-card">
-                            <div class="product-title">Artisanal Cheese</div>
-                            <div class="product-description">Creamy, hand-crafted cheese from local dairies.</div>
-                            <div class="product-price">₹599</div>
-                            <div class="seller-info">
-                                <span class="seller-name">LocalDairy</span>
-                                <span class="product-rating"><i class="fas fa-star"></i> 4.7 (150 ratings)</span>
-                            </div>
-                            <button class="button" data-item='{"title": "Artisanal Cheese", "price": 599, "seller": "LocalDairy", "rating": "4.7"}' onclick="addToCart(this.dataset.item)">Add to Cart</button>
-                            <button class="button chat-with-seller" onclick="openChat('LocalDairy')">
-                                <i class="fas fa-comment-dots"></i> Chat with Seller
-                            </button>
+                    <div class="marketplace-header">
+                        <button id="back-to-main-market" class="button" style="display: none;">
+                            <i class="fas fa-arrow-left"></i> Back to Market
+                        </button>
+                        <h2>ONDC Marketplace</h2>
+                        <div class="search-container">
+                            <input type="text" id="market-search" placeholder="Search products...">
+                            <i class="fas fa-search"></i>
                         </div>
                     </div>
+                    <div class="marketplace-grid" id="marketplace-grid"></div>
                 </div>
 
                 <div id="seller" class="section">
@@ -1174,7 +1243,6 @@
                         <button class="back-button seller-button"><i class="fas fa-arrow-left"></i> Back</button>
                         <h3>Seller Analytics</h3>
                         <div class="analytics-chart">
-                            <!-- Placeholder for a chart -->
                             <svg width="100%" height="200">
                                 <rect width="100%" height="100%" fill="#f0f0f0" />
                                 <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle">Sales Chart Placeholder</text>
@@ -1216,7 +1284,7 @@
                         <div class="account-info">
                             <img src="/placeholder.svg?height=80&width=80" alt="User Avatar" class="account-avatar">
                             <div class="account-name" id="account-name">Rahul</div>
-                            <div class="account-email" id="account-email">swag.da@example.com</div>
+                            <div class="account-email" id="account-email">Swag.da@example.com</div>
                             <button class="button">Edit Profile</button>
                             <button id="create-seller-account" class="button">Create Seller Account</button>
                             <div class="account-stats">
@@ -1327,6 +1395,19 @@
                     <div id="cart-items"></div>
                     <div id="cart-total"></div>
                 </div>
+
+                <div class="activity-modal" id="activity-modal">
+                    <div class="modal-content">
+                        <h3>Recent Activity</h3>
+                        <div id="activity-list">
+                            <div class="activity-item">Added new item to cart - 2 mins ago</div>
+                            <div class="activity-item">Earned 50 reward points - 1 hour ago</div>
+                            <div class="activity-item">Viewed Electronics category - 2 hours ago</div>
+                            <div class="activity-item">Completed daily check-in - 5 hours ago</div>
+                        </div>
+                        <button class="button" onclick="toggleActivityModal()">Close</button>
+                    </div>
+                </div>
             </div>
             
             <nav class="bottom-nav">
@@ -1387,16 +1468,272 @@
     </div>
 
     <script>
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <div class="product-title">${product.title}</div>
+                <div class="product-description">${product.description}</div>
+                <div class="product-price">₹${product.price}</div>
+                <div class="seller-info">
+                    <span class="seller-name">${product.seller}</span>
+                    <span class="product-rating"><i class="fas fa-star"></i> ${product.rating}</span>
+                </div>
+                <button class="button" data-item='${JSON.stringify(product)}' onclick="addToCart(this.dataset.item)">
+                    Add to Cart
+                </button>
+                <button class="button chat-with-seller" onclick="openChat('${product.seller}')">
+                    <i class="fas fa-comment-dots"></i> Chat with Seller
+                </button>
+            `;
+            return card;
+        }
+
+        function showCategoryProducts(category) {
+            showSection('marketplace');
+            const marketplaceGrid = document.getElementById('marketplace-grid');
+            const backButton = document.getElementById('back-to-main-market');
+            const categoryProducts = getCategoryProducts(category);
+            
+            backButton.style.display = 'block';
+            backButton.onclick = () => {
+                backButton.style.display = 'none';
+                showMainMarketplace();
+            };
+            
+            const filterSection = document.createElement('div');
+            filterSection.className = 'filter-section';
+            filterSection.innerHTML = `
+                <select class="filter-dropdown" onchange="filterProducts(this.value, '${category}')">
+                    <option value="all">All ${category}</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="rating">Highest Rated</option>
+                    <option value="newest">Newest First</option>
+                </select>
+            `;
+            
+            marketplaceGrid.innerHTML = '';
+            marketplaceGrid.appendChild(filterSection);
+            
+            categoryProducts.forEach(product => {
+                const productCard = createProductCard(product);
+                marketplaceGrid.appendChild(productCard);
+            });
+        }
+
+        function getCategoryProducts(category) {
+            const categoryProducts = {
+                'electronics': [
+                    {
+                        title: 'Premium Wireless Earbuds',
+                        description: 'High-quality sound with active noise cancellation',
+                        price: 2999,
+                        seller: 'TechHub',
+                        rating: '4.6',
+                        subcategory: 'Audio'
+                    },
+                    {
+                        title: 'Smart Watch Pro',
+                        description: 'Advanced fitness tracking and notifications',
+                        price: 4999,
+                        seller: 'SmartGear',
+                        rating: '4.4',
+                        subcategory: 'Wearables'
+                    },
+                ],
+                'fashion': [
+                    {
+                        title: 'Designer Denim Jacket',
+                        description: 'Premium quality denim with modern styling',
+                        price: 1999,
+                        seller: 'Fashionista',
+                        rating: '4.3',
+                        subcategory: 'Outerwear'
+                    },
+                ],
+                'home': [
+                    {
+                        title: 'Smart LED Lighting Kit',
+                        description: 'Voice-controlled ambient lighting system',
+                        price: 3499,
+                        seller: 'SmartHome',
+                        rating: '4.7',
+                        subcategory: 'Smart Home'
+                    },
+                ],
+                'ai-tools': [
+                    {
+                        title: 'AI Writing Assistant Pro',
+                        description: 'Advanced AI-powered content creation tool',
+                        price: 999,
+                        seller: 'AITools',
+                        rating: '4.8',
+                        subcategory: 'Productivity'
+                    },
+                ],
+                'books': [
+                    {
+                        title: 'The Future of AI',
+                        description: 'Comprehensive guide to artificial intelligence',
+                        price: 499,
+                        seller: 'BookMaster',
+                        rating: '4.5',
+                        subcategory: 'Technology'
+                    },
+                ],
+                'more': [
+                    {
+                        title: 'Fitness Equipment Set',
+                        description: 'Complete home workout solution',
+                        price: 5999,
+                        seller: 'FitLife',
+                        rating: '4.4',
+                        subcategory: 'Fitness'
+                    },
+                ]
+            };
+            
+            return categoryProducts[category] || [];
+        }
+
+        function filterProducts(filterValue, category) {
+            const products = getCategoryProducts(category);
+            let filteredProducts = [...products];
+            
+            switch(filterValue) {
+                case 'price-low':
+                    filteredProducts.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price-high':
+                    filteredProducts.sort((a, b) => b.price - a.price);
+                    break;
+                case 'rating':
+                    filteredProducts.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
+                    break;
+                case 'newest':
+                    filteredProducts.reverse();
+                    break;
+            }
+            
+            const marketplaceGrid = document.getElementById('marketplace-grid');
+            const filterSection = marketplaceGrid.querySelector('.filter-section');
+            marketplaceGrid.innerHTML = '';
+            marketplaceGrid.appendChild(filterSection);
+            
+            filteredProducts.forEach(product => {
+                const productCard = createProductCard(product);
+                marketplaceGrid.appendChild(productCard);
+            });
+        }
+
+        function showMainMarketplace() {
+            const marketplaceGrid = document.getElementById('marketplace-grid');
+            marketplaceGrid.innerHTML = '';
+            
+            const filterSection = document.createElement('div');
+            filterSection.className = 'filter-section';
+            filterSection.innerHTML = `
+                <div class="search-container">
+                    <input type="text" id="market-search" placeholder="Search products...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <select class="filter-dropdown" onchange="filterProducts(this.value, 'all')">
+                    <option value="all">All Products</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="rating">Highest Rated</option>
+                    <option value="newest">Newest First</option>
+                </select>
+            `;
+            marketplaceGrid.appendChild(filterSection);
+            
+            const defaultProducts = [
+                {
+                    title: 'Smart Home Hub',
+                    description: 'Control your entire home with voice commands',
+                    price: 4999,
+                    seller: 'ONDC TechStore',
+                    rating: '4.7',
+                    subcategory: 'Smart Home'
+                },
+                {
+                    title: 'Organic Skincare Set',
+                    description: 'Natural ingredients for glowing skin',
+                    price: 1499,
+                    seller: 'Nature\'s Best',
+                    rating: '4.8',
+                    subcategory: 'Beauty'
+                },
+                {
+                    title: 'Fitness Tracker Pro',
+                    description: 'Advanced health monitoring features',
+                    price: 2999,
+                    seller: 'FitTech',
+                    rating: '4.6',
+                    subcategory: 'Wearables'
+                },
+                {
+                    title: 'Gourmet Coffee Maker',
+                    description: 'Barista-quality coffee at home',
+                    price: 5999,
+                    seller: 'Kitchen Elite',
+                    rating: '4.9',
+                    subcategory: 'Appliances'
+                },
+                {
+                    title: 'Solar Power Bank',
+                    description: 'Eco-friendly charging solution',
+                    price: 1299,
+                    seller: 'GreenTech',
+                    rating: '4.5',
+                    subcategory: 'Accessories'
+                },
+                {
+                    title: 'Smart Garden Kit',
+                    description: 'Automated plant care system',
+                    price: 3499,
+                    seller: 'GardenTech',
+                    rating: '4.4',
+                    subcategory: 'Home & Garden'
+                }
+            ];
+            
+            defaultProducts.forEach(product => {
+                const productCard = createProductCard(product);
+                marketplaceGrid.appendChild(productCard);
+            });
+        }
+
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+            
+            if (sectionId === 'marketplace') {
+                showMainMarketplace();
+            }
+            
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(navItem => navItem.classList.remove('active'));
+            const navItem = document.querySelector(`.nav-item[data-target="${sectionId}"]`);
+            if (navItem) {
+                navItem.classList.add('active');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const firebaseConfig = {
-                apiKey: "AIzaSyClf6W3B2nesvjf",
-                authDomain: "lootbase-4dapp.com",
-                databaseURL: "https://lootbase-4d01f-b.firebaseio.com",
-                projectId: "loo-4d01f",
-                storageBucket: "loot01f.appspot.com",
-                messagingSenderId: "3696657",
-                appId: "1:350264696657:web:92f5fd2970d7d70",
-                measurementId: "G-YQKMPJK"
+                apiKey: "AIzaSyClf6W3B2nesvjfZtRSMcjbt6NRp6uy-Po",
+                authDomain: "lootbase-4d01f.firebaseapp.com",
+                databaseURL: "https://lootbase-4d01f-default-rtdb.firebaseio.com",
+                projectId: "lootbase-4d01f",
+                storageBucket: "lootbase-4d01f.appspot.com",
+                messagingSenderId: "350264696657",
+                appId: "1:350264696657:web:9af597da2f5fd2970d7d70",
+                measurementId: "G-YQK38EMPJK"
             };
 
             if (!firebase.apps.length) {
@@ -1404,19 +1741,6 @@
             }
 
             const navItems = document.querySelectorAll('.nav-item');
-            const sections = document.querySelectorAll('.section');
-
-            function showSection(sectionId) {
-                sections.forEach(section => {
-                    section.classList.remove('active');
-                });
-                document.getElementById(sectionId).classList.add('active');
-                navItems.forEach(navItem => navItem.classList.remove('active'));
-                const navItem = document.querySelector(`.nav-item[data-target="${sectionId}"]`);
-                if (navItem) {
-                    navItem.classList.add('active');
-                }
-            }
 
             navItems.forEach(item => {
                 item.addEventListener('click', () => {
@@ -1425,10 +1749,8 @@
                 });
             });
 
-            // Show Home section by default
             showSection('home');
 
-            // Add click event to Loot logo
             document.querySelector('.logo').addEventListener('click', () => {
                 showSection('home');
             });
@@ -1576,24 +1898,84 @@
 
             function scratch(e) {
                 if (!isScratching) return;
-                const rect = scratchCard.getBoundingClientRect();
-                const x = (e.clientX || e.touches[0].clientX) - rect.left;
-                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                
+                const rect = scratchCanvas.getBoundingClientRect();
+                let x, y;
+                
+                if (e.type.startsWith('mouse')) {
+                    x = e.clientX - rect.left;
+                    y = e.clientY - rect.top;
+                } else if (e.type.startsWith('touch')) {
+                    x = e.touches[0].clientX - rect.left;
+                    y = e.touches[0].clientY - rect.top;
+                }
                 
                 const ctx = scratchCanvas.getContext('2d');
                 ctx.globalCompositeOperation = 'destination-out';
                 ctx.beginPath();
                 ctx.arc(x, y, 20, 0, 2 * Math.PI);
                 ctx.fill();
+                
+                const pixels = ctx.getImageData(0, 0, scratchCanvas.width, scratchCanvas.height);
+                let scratched = 0;
+                for (let i = 3; i < pixels.data.length; i += 4) {
+                    if (pixels.data[i] < 128) scratched++;
+                }
+                
+                if (scratched / (pixels.data.length / 4) > 0.5) {
+                    revealPrize();
+                }
             }
 
-            scratchCard.addEventListener('mousedown', startScratching);
-            scratchCard.addEventListener('mousemove', scratch);
+            function revealPrize() {
+                const prizes = [
+                    { amount: 50, type: 'points' },
+                    { amount: 100, type: 'cashback' },
+                    { amount: 75, type: 'points' },
+                    { amount: 50, type: 'cashback' }
+                ];
+                
+                const prize = prizes[Math.floor(Math.random() * prizes.length)];
+                
+                if (prize.type === 'points') {
+                    updatePoints(prize.amount);
+                    alert(`Congratulations! You won ${prize.amount} points!`);
+                } else {
+                    updateCashback(prize.amount);
+                    alert(`Congratulations! You won ₹${prize.amount} cashback!`);
+                }
+
+                scratchOverlay.remove();
+                initScratchCard();
+            }
+
+            function updateCashback(amount) {
+                const cashbackBalance = document.getElementById('cashback-balance');
+                let currentCashback = parseInt(cashbackBalance.textContent.replace('₹', ''));
+                currentCashback += amount;
+                cashbackBalance.textContent = `₹${currentCashback}`;
+            }
+
+            function updatePoints(amount) {
+                const pointsDisplays = document.querySelectorAll('#points-balance');
+                pointsDisplays.forEach(display => {
+                    let currentPoints = parseInt(display.textContent);
+                    currentPoints += amount;
+                    display.textContent = currentPoints;
+                });
+            }
+
+            scratchCard.addEventListener('mousedown', startScratching, { passive: false });
+            scratchCard.addEventListener('mousemove', scratch, { passive: false });
             scratchCard.addEventListener('mouseup', stopScratching);
             scratchCard.addEventListener('mouseleave', stopScratching);
-            scratchCard.addEventListener('touchstart', startScratching);
-            scratchCard.addEventListener('touchmove', scratch);
+            scratchCard.addEventListener('touchstart', startScratching, { passive: false });
+            scratchCard.addEventListener('touchmove', scratch, { passive: false });
             scratchCard.addEventListener('touchend', stopScratching);
+
+            scratchCard.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+            }, { passive: false });
 
             function startScratching(e) {
                 isScratching = true;
@@ -1622,13 +2004,6 @@
                     updatePoints(100);
                 }
             });
-
-            function updatePoints(amount) {
-                const pointsBalance = document.getElementById('points-balance');
-                let currentPoints = parseInt(pointsBalance.textContent);
-                currentPoints += amount;
-                pointsBalance.textContent = currentPoints;
-            }
 
             document.querySelectorAll('.reel-actions button:last-child').forEach(button => {
                 button.addEventListener('click', () => {
@@ -1690,6 +2065,13 @@
                 loginPanel.classList.toggle('active');
             });
         });
+
+        function toggleActivityModal() {
+            const modal = document.getElementById('activity-modal');
+            if (modal) {
+                modal.classList.toggle('active');
+            }
+        }
 
         function openChat(seller) {
             const chatWindow = document.getElementById('chat-window');
